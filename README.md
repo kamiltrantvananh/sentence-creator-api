@@ -1,7 +1,7 @@
 # Sentence from words via API
 
 ## Task:
-The system will be a simple webapp exposing REST API acting as a generator of the sentences from the words inserted to it by rules described below. You can input any word to the system but you need to specify its part of speech - NOUN or VERB or OBJECTIVE.
+The system will be a simple webapp exposing REST API acting as a generator of the sentences from the words inserted to it by rules described below. You can input any word to the system but you need to specify its part of speech - NOUN or VERB or ADJECTIVE.
 
 The system must be able to generate a sentence from the words according to the rule that sentence is in the form of NOUN VERB ADJECTIVE. Further description of resources functionality is available in the next part - API proposal.
 
@@ -25,7 +25,7 @@ If you find any nonsense in the task description or have a problem with bootstra
 ```
 {
   "word": {
-    "wordCategory": "NOUN/VERB/OBJECTIVE"
+    "wordCategory": "NOUN/VERB/ADJECTIVE"
   }
 }
 ```
@@ -36,7 +36,7 @@ If you find any nonsense in the task description or have a problem with bootstra
 {
   "word": {
     "word": "fooWord",
-    "wordCategory": "NOUN/VERB/OBJECTIVE"
+    "wordCategory": "NOUN/VERB/ADJECTIVE"
   }
 }
 ```

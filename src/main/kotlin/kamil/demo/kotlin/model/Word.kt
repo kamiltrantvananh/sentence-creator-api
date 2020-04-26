@@ -7,7 +7,7 @@ import javax.persistence.Id
 
 @Entity
 data class Word (
-        var word: String?,
+        var word: String,
         var wordCategory: WordCategory,
         @Id @GeneratedValue var id: Long? = null) {
 
@@ -28,7 +28,7 @@ data class Word (
     }
 
     override fun hashCode(): Int {
-        var result = word?.hashCode() ?: 0
+        var result = word.hashCode() ?: 0
         result = 31 * result + wordCategory.hashCode()
         result = 31 * result + (id?.hashCode() ?: 0)
         return result

@@ -17,8 +17,8 @@ class SentenceRepositoryTest  @Autowired constructor(
 
     @Test
     fun `findAll return list of all Sentences`() {
-        val sentenceOne = Sentence("one")
-        val sentenceTwo = Sentence("two")
+        val sentenceOne = Sentence( "one", "takes", "two", 0)
+        val sentenceTwo = Sentence("two", "add",  "five", 0)
 
         entityManager.persist(sentenceOne)
         entityManager.persist(sentenceTwo)
@@ -30,8 +30,8 @@ class SentenceRepositoryTest  @Autowired constructor(
 
     @Test
     fun `findByIdOrNull return Sentence`() {
-        val sentenceOne = Sentence("one")
-        val sentenceTwo = Sentence("two")
+        val sentenceOne = Sentence( "one", "takes", "two", 0)
+        val sentenceTwo = Sentence("two", "add",  "five", 0)
 
         entityManager.persist(sentenceOne)
         entityManager.persist(sentenceTwo)
@@ -43,8 +43,8 @@ class SentenceRepositoryTest  @Autowired constructor(
 
     @Test
     fun `findByIdOrNull return null`() {
-        val sentenceOne = Sentence("one")
-        val sentenceTwo = Sentence("two")
+        val sentenceOne = Sentence( "one", "takes", "two", 0)
+        val sentenceTwo = Sentence("two", "add",  "five", 0)
 
         entityManager.persist(sentenceOne)
         entityManager.persist(sentenceTwo)
@@ -52,18 +52,5 @@ class SentenceRepositoryTest  @Autowired constructor(
 
         val actual = sentenceRepository.findByIdOrNull(666L)
         assertNull(actual)
-    }
-
-    @Test
-    fun `findByText return list of one Sentence`() {
-        val sentenceOne = Sentence("one")
-        val sentenceTwo = Sentence("two")
-
-        entityManager.persist(sentenceOne)
-        entityManager.persist(sentenceTwo)
-        entityManager.flush()
-
-        val actual = sentenceRepository.findByText("one")
-        MatcherAssert.assertThat(actual, Matchers.containsInAnyOrder(sentenceOne))
     }
 }
