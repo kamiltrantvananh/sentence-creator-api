@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/words")
-class WordsController(
-        private val wordsService: WordsService) {
+@RequestMapping("/words")
+class WordsController(private val wordsService: WordsService) {
 
     @GetMapping("/{word}/{wordCategory}")
     fun getWord(@PathVariable word: String, @PathVariable wordCategory: WordCategory): WordRestDto {

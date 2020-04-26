@@ -36,13 +36,14 @@ class WordsServiceTest {
     @MockkBean
     lateinit var properties: AppProperties
 
+    private final val forbiddenWordPath = "C:\\devel\\repository\\sentence-creator-api\\src\\test\\resources\\forbidden-words.json"
     val wordOne = Word("one", NOUN, 1L)
     val wordTwo = Word("two", VERB, 2L)
     val forbidden = Word("FUCKER", NOUN, 3L)
 
     @Test
     fun `getWord by word and category return Word`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
         every { repository.findByWordAndWordCategory("one", NOUN) } returns Optional.of(wordOne)
 
         val result = service.getWord("one", NOUN)
@@ -52,7 +53,7 @@ class WordsServiceTest {
 
     @Test
     fun `forbidden getWord by word and category throws ForbiddenWordException`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
         every { repository.findByWordAndWordCategory("FUCKER", NOUN) } returns
                 Optional.of(forbidden)
 
@@ -63,7 +64,7 @@ class WordsServiceTest {
 
     @Test
     fun `getWord by word return Word`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
         every { repository.findByWord("one") } returns listOf(wordOne, wordTwo)
 
         val result = service.getWord("one")
@@ -73,7 +74,7 @@ class WordsServiceTest {
 
     @Test
     fun `forbidden getWord by word throws ForbiddenWordException`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
         every { repository.findByWord("FUCKER") } returns listOf(forbidden)
 
         assertThrows<ForbiddenWordException> {
@@ -83,7 +84,7 @@ class WordsServiceTest {
 
     @Test
     fun `getWord throws WordNotExistException`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
         every { repository.findByWordAndWordCategory("one", NOUN) } returns Optional.empty()
 
         assertThrows<WordNotExistException> {
@@ -93,7 +94,7 @@ class WordsServiceTest {
 
     @Test
     fun `getForbiddenWords return list of Word`() {
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
 
         val result = service.getForbiddenWords()
 
@@ -112,7 +113,7 @@ class WordsServiceTest {
     @Test
     fun `getAllWords return list of Words without forbidden`() {
         every { repository.findAll() } returns listOf(wordOne, forbidden)
-        every { properties.forbiddenWords } returns "src/main/resources/forbidden-words.json"
+        every { properties.forbiddenWords } returns forbiddenWordPath
 
         val result = service.getAllWords()
 

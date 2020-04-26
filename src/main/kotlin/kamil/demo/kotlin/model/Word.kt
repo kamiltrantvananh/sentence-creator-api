@@ -12,7 +12,7 @@ data class Word (
         @Id @GeneratedValue var id: Long? = null) {
 
     override fun toString(): String {
-        return "Word: [word = \"$word\", wordCategory = \"$wordCategory\", id = \"$id\"]"
+        return "Word: [word = '$word', wordCategory = '$wordCategory', id = '$id']"
     }
 
     override fun equals(other: Any?): Boolean {

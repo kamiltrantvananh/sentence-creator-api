@@ -22,11 +22,11 @@ class WordsServiceImpl(
         val result = repository.findByWordAndWordCategory(word, wordCategory)
 
         if (!result.isPresent) {
-            throw WordNotExistException("Word \"$word\" with category \"$wordCategory\" not exist.")
+            throw WordNotExistException("Word '$word' with category '$wordCategory' not exist.")
         }
 
         return if (result.stream().anyMatch { w -> getForbiddenWords().contains(w.word) }) {
-            throw ForbiddenWordException("Word \"$word\" with category \"$wordCategory\" is forbidden.")
+            throw ForbiddenWordException("Word '$word' with category '$wordCategory' is forbidden.")
         } else {
             result.get()
         }
@@ -36,11 +36,11 @@ class WordsServiceImpl(
         val result = repository.findByWord(word).toList()
 
         if (result.isEmpty()) {
-            throw WordNotExistException("Word \"$word\" not exist.")
+            throw WordNotExistException("Word '$word' not exist.")
         }
 
         if (result.stream().anyMatch { w -> getForbiddenWords().contains(w.word) }) {
-            throw ForbiddenWordException("Word \"$word\" is forbidden.")
+            throw ForbiddenWordException("Word '$word' is forbidden.")
         }
 
         return result.minBy { w -> w.wordCategory.ordinal }!!
@@ -79,7 +79,7 @@ class WordsServiceImpl(
         }
 
         return if (words.isEmpty()) {
-            throw WordNotExistException("There are any words in category \"$wordCategory\".")
+            throw WordNotExistException("There are any words in category '$wordCategory'.")
         } else {
             words.random()
         }

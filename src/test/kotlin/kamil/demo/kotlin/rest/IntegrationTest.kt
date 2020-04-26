@@ -43,7 +43,7 @@ class IntegrationTest(
 
     @Test
     fun `getWords return list of Word`() {
-        val entity = restTemplate.getForEntity<String>("/api/v1/words/")
+        val entity = restTemplate.getForEntity<String>("/words/")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         assertThat(entity.body, `is`("[ {\r\n" +
@@ -66,7 +66,7 @@ class IntegrationTest(
 
     @Test
     fun `getWord by word and category return Word`() {
-        val entity = restTemplate.getForEntity<String>("/api/v1/words/one/NOUN")
+        val entity = restTemplate.getForEntity<String>("/words/one/NOUN")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         assertThat(entity.body, `is`("{\r\n" +
@@ -79,7 +79,7 @@ class IntegrationTest(
 
     @Test
     fun `getWord by word return Word`() {
-        val entity = restTemplate.getForEntity<String>("/api/v1/words/one")
+        val entity = restTemplate.getForEntity<String>("/words/one")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         assertThat(entity.body, `is`("{\r\n" +
@@ -93,7 +93,7 @@ class IntegrationTest(
     @Test
     fun `putWord return Word`() {
         val wordRestDto = WordRestDto(WordBodyRestDto(null, WordCategory.ADJECTIVE))
-        val entity = restTemplate.exchange("/api/v1/words/new", HttpMethod.PUT, HttpEntity(wordRestDto), String::class.java)
+        val entity = restTemplate.exchange("/words/new", HttpMethod.PUT, HttpEntity(wordRestDto), String::class.java)
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         assertThat(entity.body, `is`("{\r\n" +
@@ -105,8 +105,8 @@ class IntegrationTest(
     }
 
     @Test
-    fun `getSentences return list of Sentece`() {
-        val entity = restTemplate.getForEntity<String>("/api/v1/sentences/")
+    fun `getSentences return list of Sentence`() {
+        val entity = restTemplate.getForEntity<String>("/sentences/")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         // TODO continue test

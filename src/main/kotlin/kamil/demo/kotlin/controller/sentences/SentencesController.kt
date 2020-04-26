@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/sentences")
-class SentencesController(
-        private val sentencesService: SentencesService
-) {
+@RequestMapping("/sentences")
+class SentencesController(private val sentencesService: SentencesService) {
 
     @GetMapping("/")
     fun getSentences(): List<SentenceRestDto> {

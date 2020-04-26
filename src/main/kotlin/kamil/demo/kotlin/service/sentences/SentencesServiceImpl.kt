@@ -25,7 +25,7 @@ class SentencesServiceImpl(
         return if (sentence.isPresent) {
             incDisplayCount(sentence.get())
         } else {
-            throw SentenceNotExistException("Sentence with id \"$id\" not exist.")
+            throw SentenceNotExistException("Sentence with id '$id' not exist.")
         }
     }
 
