@@ -1,5 +1,5 @@
 package kamil.demo.kotlin.types
 
 enum class WordCategory {
-    NOUN, VERB, OBJECTIVE
+    NOUN, VERB, ADJECTIVE
 }

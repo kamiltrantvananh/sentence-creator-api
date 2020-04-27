@@ -6,6 +6,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -79,6 +80,7 @@ class WordRepositoryTest @Autowired constructor(
         entityManager.flush()
 
         val actual = wordRepository.findByWordAndWordCategory("one", WordCategory.NOUN)
-        assertThat(actual, `is`(wordOne))
+        assertTrue(actual.isPresent)
+        assertThat(actual.get(),  `is`(wordOne))
     }
 }
