@@ -1,7 +1,10 @@
 package kamil.demo.kotlin.rest
 
+import kamil.demo.kotlin.matchers.SentenceBodyRestDtoMatcher
+import kamil.demo.kotlin.matchers.SentenceRestDtoMatcher
 import kamil.demo.kotlin.model.Sentence
 import kamil.demo.kotlin.model.Word
+import kamil.demo.kotlin.model.rest.SentenceRestDto
 import kamil.demo.kotlin.model.rest.WordBodyRestDto
 import kamil.demo.kotlin.model.rest.WordRestDto
 import kamil.demo.kotlin.repository.SentenceRepository
@@ -9,12 +12,16 @@ import kamil.demo.kotlin.repository.WordRepository
 import kamil.demo.kotlin.types.WordCategory
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.any
+import org.hamcrest.Matchers.hasItems
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -27,9 +34,12 @@ class IntegrationTest(
         @Autowired val sentenceRepository: SentenceRepository
 ) {
 
-    val defaultTimestamp: LocalDateTime = LocalDateTime.now()
-    val idSentenceOne = 1L
-    val idSentenceTwo = 2L
+    private final val defaultTimestamp: LocalDateTime = LocalDateTime.parse("2020-04-27T00:00:01")
+    private final val typeReferenceList = object : ParameterizedTypeReference<List<SentenceRestDto>>(){}
+    var sentenceOneCounter = 3
+    var sentenceTwoCounter = 1
+    private val sentenceOne = Sentence("one", "two", "three", sentenceOneCounter, defaultTimestamp)
+    private val sentenceTwo = Sentence("Yoda", "talk", "normal", sentenceTwoCounter, defaultTimestamp.minusDays(2))
 
     @BeforeAll
     fun setup() {
@@ -37,8 +47,14 @@ class IntegrationTest(
         wordRepository.save(Word("two", WordCategory.VERB))
         wordRepository.save(Word("three", WordCategory.ADJECTIVE))
 
-        sentenceRepository.save(Sentence("one", "two", "three", 3, defaultTimestamp, idSentenceOne))
-        sentenceRepository.save(Sentence("Yoda", "talk", "normal", 1, defaultTimestamp.minusDays(2), idSentenceTwo))
+        sentenceRepository.save(sentenceOne)
+        sentenceRepository.save(sentenceTwo)
+    }
+
+    @AfterAll
+    fun cleanUpAfterMethod() {
+        wordRepository.deleteAll()
+        sentenceRepository.deleteAll()
     }
 
     @Test
@@ -106,9 +122,71 @@ class IntegrationTest(
 
     @Test
     fun `getSentences return list of Sentence`() {
-        val entity = restTemplate.getForEntity<String>("/sentences/")
+        val entity = restTemplate.exchange("/sentences/", HttpMethod.GET, null, typeReferenceList)
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
-        // TODO continue test
+        sentenceOneCounter = sentenceOneCounter.inc()
+        sentenceTwoCounter = sentenceTwoCounter.inc()
+        assertThat(entity.body, hasItems(
+                SentenceRestDtoMatcher(
+                        SentenceBodyRestDtoMatcher(
+                                `is`(any(Long::class.java)),
+                                `is`("${sentenceOne.noun} ${sentenceOne.verb} ${sentenceOne.adjective}"),
+                                `is`(sentenceOneCounter),
+                                `is`(defaultTimestamp)
+                        )),
+                SentenceRestDtoMatcher(
+                        SentenceBodyRestDtoMatcher(
+                                `is`(any(Long::class.java)),
+                                `is`("${sentenceTwo.noun} ${sentenceTwo.verb} ${sentenceTwo.adjective}"),
+                                `is`(sentenceTwoCounter),
+                                `is`(defaultTimestamp.minusDays(2))
+                        )
+                )
+        ))
+    }
+
+    @Test
+    fun `getSentence return Sentence`() {
+        val entity = restTemplate.getForEntity<SentenceRestDto>("/sentences/${sentenceOne.id}")
+
+        assertThat(entity.statusCode, `is`(HttpStatus.OK))
+        sentenceOneCounter = sentenceOneCounter.inc()
+        assertThat(entity.body, SentenceRestDtoMatcher(
+                SentenceBodyRestDtoMatcher(
+                        `is`(any(Long::class.java)),
+                        `is`("${sentenceOne.noun} ${sentenceOne.verb} ${sentenceOne.adjective}"),
+                        `is`(sentenceOneCounter),
+                        `is`(defaultTimestamp)
+                )))
+    }
+
+    @Test
+    fun `getSentenceAsYodaTalk return Sentence`() {
+        val entity = restTemplate.getForEntity<SentenceRestDto>("/sentences/${sentenceOne.id}/yodaTalk")
+
+        assertThat(entity.statusCode, `is`(HttpStatus.OK))
+        sentenceOneCounter = sentenceOneCounter.inc()
+        assertThat(entity.body, SentenceRestDtoMatcher(
+                SentenceBodyRestDtoMatcher(
+                        `is`(any(Long::class.java)),
+                        `is`("${sentenceOne.adjective} ${sentenceOne.noun} ${sentenceOne.verb}"),
+                        `is`(sentenceOneCounter),
+                        `is`(defaultTimestamp)
+                )))
+    }
+
+    @Test
+    fun `generateSentence return Sentence`() {
+        val entity = restTemplate.postForEntity("/sentences/generate", null, SentenceRestDto::class.java)
+
+        assertThat(entity.statusCode, `is`(HttpStatus.OK))
+        assertThat(entity.body, SentenceRestDtoMatcher(
+                SentenceBodyRestDtoMatcher(
+                        `is`(any(Long::class.java)),
+                        `is`("one two three"),
+                        `is`(any(Int::class.java)),
+                        `is`(any(LocalDateTime::class.java))
+                )))
     }
 }

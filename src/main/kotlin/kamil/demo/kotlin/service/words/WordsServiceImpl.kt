@@ -73,6 +73,14 @@ class WordsServiceImpl(
         repository.delete(word)
     }
 
+    override fun removeWord(word: String) {
+        repository.delete(getWord(word))
+    }
+
+    override fun removeAllWord() {
+        repository.deleteAll()
+    }
+
     override fun getRandomWordByCategory(wordCategory: WordCategory): Word {
         val words = getAllWords().filter {
             word -> word.wordCategory == wordCategory

@@ -1,15 +1,20 @@
 package kamil.demo.kotlin.controller.sentences
 
 import kamil.demo.kotlin.model.Sentence
+import kamil.demo.kotlin.model.Stats
 import kamil.demo.kotlin.model.rest.SentenceBodyRestDto
 import kamil.demo.kotlin.model.rest.SentenceRestDto
 import kamil.demo.kotlin.service.sentences.SentencesService
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * Rest controller for sentences.
+ */
 @RestController
 @RequestMapping("/sentences")
 class SentencesController(private val sentencesService: SentencesService) {
@@ -34,17 +39,42 @@ class SentencesController(private val sentencesService: SentencesService) {
         return convertToJson(sentencesService.generateSentence(), false)
     }
 
-    fun convertToJson(sentence: Sentence, asYoda: Boolean): SentenceRestDto {
-
-        val text = if (asYoda) {
-            "${sentence.adjective} ${sentence.noun} ${sentence.verb}"
-        } else {
-            "${sentence.noun} ${sentence.verb} ${sentence.adjective}"
-        }
-        return SentenceRestDto(
-                SentenceBodyRestDto(sentence.id!!, text, sentence.showDisplayCount!!, sentence.timestamp))
+    @DeleteMapping("/")
+    fun removeAllSentences() {
+        return sentencesService.removeAllSentences()
     }
 
+    @DeleteMapping("/{sentenceID}")
+    fun removeAllSentences(@PathVariable sentenceID: Long) {
+        return sentencesService.removeSentence(sentenceID)
+    }
+
+    @GetMapping("/stats")
+    fun getStats(): List<Stats> {
+        return sentencesService.getStats()
+    }
+
+    /**
+     * Converter for sentence for specific format in JSON.
+     *
+     * @param sentence  sentence from crud repository
+     * @param asYoda    Yoda talk sentence flag
+     */
+    fun convertToJson(sentence: Sentence, asYoda: Boolean): SentenceRestDto {
+        return SentenceRestDto(
+                SentenceBodyRestDto(
+                        sentence.id!!,
+                        sentencesService.createSentence(sentence, asYoda),
+                        sentence.showDisplayCount!!,
+                        sentence.timestamp))
+    }
+
+    /**
+     * Converter for sentences for specific format in JSON.
+     *
+     * @param sentences list of sentences from crud repository
+     * @param asYoda    Yoda talk sentence flag
+     */
     fun convertToJson(sentences: List<Sentence>, asYoda: Boolean): List<SentenceRestDto> {
         return sentences.map { sentence -> convertToJson(sentence, asYoda) }.toList()
     }

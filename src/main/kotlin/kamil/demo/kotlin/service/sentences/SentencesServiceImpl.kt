@@ -2,6 +2,7 @@ package kamil.demo.kotlin.service.sentences
 
 import kamil.demo.kotlin.exceptions.SentenceNotExistException
 import kamil.demo.kotlin.model.Sentence
+import kamil.demo.kotlin.model.Stats
 import kamil.demo.kotlin.repository.SentenceRepository
 import kamil.demo.kotlin.service.words.WordsService
 import kamil.demo.kotlin.types.WordCategory
@@ -10,8 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class SentencesServiceImpl(
         private val sentenceRepository: SentenceRepository,
-        private val wordsService: WordsService
-): SentencesService {
+        private val wordsService: WordsService): SentencesService {
 
     override fun getAllSentences(): List<Sentence> {
         return sentenceRepository.findAll()
@@ -40,8 +40,32 @@ class SentencesServiceImpl(
         )
     }
 
+    override fun removeSentence(id: Long) {
+        sentenceRepository.deleteById(id)
+    }
+
+    override fun removeAllSentences() {
+        sentenceRepository.deleteAll()
+    }
+
+    override fun getStats(): List<Stats> {
+        return getAllSentences()
+                .groupBy { s -> createSentence(s, false) }
+                .map { (text, sentences) -> Stats(sentences.map { sentence -> sentence.id!! }.toMutableList(), text) }
+                .toList()
+    }
+
+    override fun createSentence(sentence: Sentence, asYoda: Boolean): String {
+        return if (asYoda) {
+            "${sentence.adjective} ${sentence.noun} ${sentence.verb}"
+        } else {
+            "${sentence.noun} ${sentence.verb} ${sentence.adjective}"
+        }
+    }
+
     fun incDisplayCount(sentence: Sentence): Sentence {
         sentence.showDisplayCount = sentence.showDisplayCount?.inc()
         return sentenceRepository.save(sentence)
     }
+
 }

@@ -5,6 +5,9 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
+/**
+ * Entity representing sentence in repository.
+ */
 @Entity
 data class Sentence (
         var noun: String,

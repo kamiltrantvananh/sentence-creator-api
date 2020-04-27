@@ -10,6 +10,7 @@ import kamil.demo.kotlin.model.Word
 import kamil.demo.kotlin.repository.WordRepository
 import kamil.demo.kotlin.service.words.WordsService
 import kamil.demo.kotlin.types.AppProperties
+import kamil.demo.kotlin.types.WordCategory.ADJECTIVE
 import kamil.demo.kotlin.types.WordCategory.NOUN
 import kamil.demo.kotlin.types.WordCategory.VERB
 import org.hamcrest.MatcherAssert.assertThat
@@ -70,6 +71,16 @@ class WordsServiceTest {
         val result = service.getWord("one")
 
         assertThat(result, WordMatcher(`is`("one"), `is`(NOUN)))
+    }
+
+    @Test
+    fun `getWord by word rthrows WordNotExistExceptio`() {
+        every { properties.forbiddenWords } returns forbiddenWordPath
+        every { repository.findByWord("one") } returns emptyList()
+
+        assertThrows<WordNotExistException> {
+            service.getWord("one")
+        }
     }
 
     @Test
@@ -143,8 +154,29 @@ class WordsServiceTest {
     @Test
     fun `removeWord return successful`() {
         every { repository.delete(wordOne) } returns Unit
+
         service.removeWord(wordOne)
 
         verify { repository.delete(wordOne) }
+    }
+
+    @Test
+    fun `getRandomWordByCategory return Word`() {
+        every { properties.forbiddenWords } returns ""
+        every { repository.findAll() } returns listOf(wordOne, wordTwo)
+
+        val word = service.getRandomWordByCategory(NOUN)
+
+        assertThat(word, WordMatcher(`is`("one"), `is`(NOUN)))
+    }
+
+    @Test
+    fun `getRandomWordByCategory throws WordNotExistException`() {
+        every { properties.forbiddenWords } returns ""
+        every { repository.findAll() } returns listOf(wordOne, wordTwo)
+
+        assertThrows<WordNotExistException> {
+            service.getRandomWordByCategory(ADJECTIVE)
+        }
     }
 }

@@ -3,6 +3,9 @@ package kamil.demo.kotlin.service.words
 import kamil.demo.kotlin.model.Word
 import kamil.demo.kotlin.types.WordCategory
 
+/**
+ * Service for words.
+ */
 interface WordsService {
 
     /**
@@ -56,6 +59,16 @@ interface WordsService {
      * Method remove word from a repository.
      */
     fun removeWord(word: Word)
+
+    /**
+     * Method remove word from a repository.
+     */
+    fun removeWord(word: String)
+
+    /**
+     * Method remove all words from a repository.
+     */
+    fun removeAllWord()
 
     /**
      * Method get random word by category.

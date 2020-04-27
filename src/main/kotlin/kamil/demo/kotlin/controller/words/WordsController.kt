@@ -5,6 +5,7 @@ import kamil.demo.kotlin.model.rest.WordBodyRestDto
 import kamil.demo.kotlin.model.rest.WordRestDto
 import kamil.demo.kotlin.service.words.WordsService
 import kamil.demo.kotlin.types.WordCategory
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * Rest controller for words.
+ */
 @RestController
 @RequestMapping("/words")
 class WordsController(private val wordsService: WordsService) {
@@ -35,6 +39,21 @@ class WordsController(private val wordsService: WordsService) {
     fun putWord(@PathVariable word: String, @RequestBody body: WordRestDto): WordRestDto {
         val wordCategory = body.word.wordCategory
         return convertToJson(wordsService.addWord(word, wordCategory))
+    }
+
+    @DeleteMapping("/")
+    fun removeAllWords() {
+        wordsService.removeAllWord()
+    }
+
+    @DeleteMapping("/{word}/{wordCategory}")
+    fun removeWord(@PathVariable word: String, @PathVariable wordCategory: WordCategory) {
+        wordsService.removeWord(Word(word, wordCategory))
+    }
+
+    @DeleteMapping("/{word}")
+    fun removeWord(@PathVariable word: String) {
+        wordsService.removeWord(word)
     }
 
     fun convertToJson(word: Word): WordRestDto {
