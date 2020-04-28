@@ -25,7 +25,7 @@ class WordsServiceImpl(
             throw WordNotExistException("Word '$word' with category '$wordCategory' not exist.")
         }
 
-        return if (result.stream().anyMatch { w -> getForbiddenWords().contains(w.word) }) {
+        return if (getForbiddenWords().stream().anyMatch { fw -> fw == word }) {
             throw ForbiddenWordException("Word '$word' with category '$wordCategory' is forbidden.")
         } else {
             result.get()
