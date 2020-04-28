@@ -37,7 +37,7 @@ class WordsServiceTest {
     @MockkBean
     lateinit var properties: AppProperties
 
-    private final val forbiddenWordPath = "C:\\devel\\repository\\sentence-creator-api\\src\\test\\resources\\forbidden-words.json"
+    private final val forbiddenWordPath = WordsServiceTest::class.java.getResource("/forbidden-words.json").path
     val wordOne = Word("one", NOUN, 1L)
     val wordTwo = Word("two", VERB, 2L)
     val forbidden = Word("FUCKER", NOUN, 3L)
