@@ -2,6 +2,8 @@ package kamil.demo.kotlin.rest
 
 import kamil.demo.kotlin.matchers.SentenceBodyRestDtoMatcher
 import kamil.demo.kotlin.matchers.SentenceRestDtoMatcher
+import kamil.demo.kotlin.matchers.WordBodyRestDtoMatcher
+import kamil.demo.kotlin.matchers.WordRestDtoMatcher
 import kamil.demo.kotlin.model.Sentence
 import kamil.demo.kotlin.model.Word
 import kamil.demo.kotlin.model.rest.SentenceRestDto
@@ -35,7 +37,8 @@ class IntegrationTest(
 ) {
 
     private final val defaultTimestamp: LocalDateTime = LocalDateTime.parse("2020-04-27T00:00:01")
-    private final val typeReferenceList = object : ParameterizedTypeReference<List<SentenceRestDto>>(){}
+    private final val sentenceListReference = object : ParameterizedTypeReference<List<SentenceRestDto>>(){}
+    private final val wordListReference = object : ParameterizedTypeReference<List<WordRestDto>>(){}
     var sentenceOneCounter = 3
     var sentenceTwoCounter = 1
     private val sentenceOne = Sentence("one", "two", "three", sentenceOneCounter, defaultTimestamp)
@@ -59,70 +62,44 @@ class IntegrationTest(
 
     @Test
     fun `getWords return list of Word`() {
-        val entity = restTemplate.getForEntity<String>("/words/")
+        val entity = restTemplate.exchange("/words/", HttpMethod.GET, null, wordListReference)
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
-        assertThat(entity.body, `is`("[ {\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"one\",\r\n" +
-                "    \"wordCategory\" : \"NOUN\"\r\n" +
-                "  }\r\n" +
-                "}, {\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"two\",\r\n" +
-                "    \"wordCategory\" : \"VERB\"\r\n" +
-                "  }\r\n" +
-                "}, {\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"three\",\r\n" +
-                "    \"wordCategory\" : \"ADJECTIVE\"\r\n" +
-                "  }\r\n" +
-                "} ]"))
+        assertThat(entity.body, hasItems(
+                WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("one"), `is`(WordCategory.NOUN))),
+                WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("two"), `is`(WordCategory.VERB))),
+                WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("three"), `is`(WordCategory.ADJECTIVE)))
+        ))
     }
 
     @Test
     fun `getWord by word and category return Word`() {
-        val entity = restTemplate.getForEntity<String>("/words/one/NOUN")
+        val entity = restTemplate.getForEntity<WordRestDto>("/words/one/NOUN")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
-        assertThat(entity.body, `is`("{\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"one\",\r\n" +
-                "    \"wordCategory\" : \"NOUN\"\r\n" +
-                "  }\r\n" +
-                "}"))
+        assertThat(entity.body, WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("one"), `is`(WordCategory.NOUN))))
     }
 
     @Test
     fun `getWord by word return Word`() {
-        val entity = restTemplate.getForEntity<String>("/words/one")
+        val entity = restTemplate.getForEntity<WordRestDto>("/words/one")
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
-        assertThat(entity.body, `is`("{\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"one\",\r\n" +
-                "    \"wordCategory\" : \"NOUN\"\r\n" +
-                "  }\r\n" +
-                "}"))
+        assertThat(entity.body, WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("one"), `is`(WordCategory.NOUN))))
     }
 
     @Test
     fun `putWord return Word`() {
         val wordRestDto = WordRestDto(WordBodyRestDto(null, WordCategory.ADJECTIVE))
-        val entity = restTemplate.exchange("/words/new", HttpMethod.PUT, HttpEntity(wordRestDto), String::class.java)
+        val entity = restTemplate.exchange("/words/new", HttpMethod.PUT, HttpEntity(wordRestDto), WordRestDto::class.java)
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
-        assertThat(entity.body, `is`("{\r\n" +
-                "  \"word\" : {\r\n" +
-                "    \"word\" : \"new\",\r\n" +
-                "    \"wordCategory\" : \"ADJECTIVE\"\r\n" +
-                "  }\r\n" +
-                "}"))
+        assertThat(entity.body, `is`(WordRestDtoMatcher(WordBodyRestDtoMatcher(`is`("new"), `is`(WordCategory.ADJECTIVE)))))
     }
 
     @Test
     fun `getSentences return list of Sentence`() {
-        val entity = restTemplate.exchange("/sentences/", HttpMethod.GET, null, typeReferenceList)
+        val entity = restTemplate.exchange("/sentences/", HttpMethod.GET, null, sentenceListReference)
 
         assertThat(entity.statusCode, `is`(HttpStatus.OK))
         sentenceOneCounter = sentenceOneCounter.inc()
